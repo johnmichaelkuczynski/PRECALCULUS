@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /diagnostics
+Disallow: /api/
+
+Sitemap: https://finance101.xyz/sitemap.xml

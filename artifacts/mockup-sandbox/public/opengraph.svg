@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Canvas — Visual UI Prototyping Sandbox</title>
+  <desc id="description">Explore interface ideas and turn rough concepts into polished mockups.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17151f"/>
+      <stop offset="1" stop-color="#322747"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7c978"/>
+      <stop offset="1" stop-color="#e99b5e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1060" cy="100" r="220" fill="#f7c978" opacity=".08"/>
+  <circle cx="150" cy="570" r="260" fill="#d68cff" opacity=".08"/>
+  <g transform="translate(92 88)">
+    <rect width="84" height="84" rx="22" fill="url(#accent)"/>
+    <path d="M26 28h32v8H34v14h20v8H34v18h24v8H26z" fill="#241d2d"/>
+    <path d="M42 18v58" stroke="#241d2d" stroke-width="4" opacity=".35"/>
+  </g>
+  <text x="92" y="290" fill="#fffaf2" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="700" letter-spacing="-2">Canvas</text>
+  <text x="98" y="362" fill="#f7c978" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="600" letter-spacing="2">VISUAL UI PROTOTYPING SANDBOX</text>
+  <text x="98" y="442" fill="#e8dfef" font-family="Arial, Helvetica, sans-serif" font-size="30">Explore ideas. Arrange components.</text>
+  <text x="98" y="484" fill="#e8dfef" font-family="Arial, Helvetica, sans-serif" font-size="30">Turn rough concepts into polished mockups.</text>
+  <g transform="translate(875 420) rotate(-7)">
+    <rect width="210" height="126" rx="16" fill="#fffaf2" opacity=".95"/>
+    <rect x="20" y="20" width="64" height="10" rx="5" fill="#d68cff"/>
+    <rect x="20" y="48" width="164" height="9" rx="4.5" fill="#d8cfe0"/>
+    <rect x="20" y="70" width="126" height="9" rx="4.5" fill="#d8cfe0"/>
+    <rect x="20" y="94" width="74" height="14" rx="7" fill="#e99b5e"/>
+  </g>
+</svg>

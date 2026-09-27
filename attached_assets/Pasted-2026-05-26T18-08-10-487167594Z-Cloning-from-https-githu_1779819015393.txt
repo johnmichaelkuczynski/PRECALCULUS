@@ -1,0 +1,48 @@
+2026-05-26T18:08:10.487167594Z ==> Cloning from https://github.com/johnmichaelkuczynski/quantitativereasoning101.xyz
+2026-05-26T18:08:12.804392311Z ==> Checking out commit a8c7f67f17c245691967735d87ee9ccda59d4b84 in branch main
+2026-05-26T18:08:19.731226692Z ==> Using Node.js version 24.14.1 (default)
+2026-05-26T18:08:19.731249523Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2026-05-26T18:08:19.814552839Z ==> Running build command 'pnpm install --frozen-lockfile && pnpm run build'...
+2026-05-26T18:08:27.068029948Z 
+2026-05-26T18:08:27.068079579Z > workspace@0.0.0 build /opt/render/project/src
+2026-05-26T18:08:27.068090809Z > pnpm run typecheck && pnpm -r --if-present run build
+2026-05-26T18:08:27.068097569Z 
+2026-05-26T18:08:27.673859167Z 
+2026-05-26T18:08:27.673893297Z > workspace@0.0.0 typecheck /opt/render/project/src
+2026-05-26T18:08:27.673900877Z > pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+2026-05-26T18:08:27.673911217Z 
+2026-05-26T18:08:28.271873907Z 
+2026-05-26T18:08:28.271901647Z > workspace@0.0.0 typecheck:libs /opt/render/project/src
+2026-05-26T18:08:28.271907537Z > tsc --build
+2026-05-26T18:08:28.271912577Z 
+2026-05-26T18:09:00.873019644Z ==> Uploading build...
+2026-05-26T18:09:16.792542064Z ==> Uploaded in 6.6s. Compression took 9.3s
+2026-05-26T18:09:16.843163236Z ==> Build successful 🎉
+2026-05-26T18:09:20.033184403Z ==> Deploying...
+2026-05-26T18:09:20.138569807Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-05-26T18:09:43.883185935Z ==> Running 'pnpm --filter @workspace/api-server start'
+2026-05-26T18:09:47.974891473Z 
+2026-05-26T18:09:47.974936337Z > @workspace/api-server@0.0.0 start /opt/render/project/src/artifacts/api-server
+2026-05-26T18:09:47.974941417Z > node --enable-source-maps ./dist/index.mjs
+2026-05-26T18:09:47.974944027Z 
+2026-05-26T18:09:50.279125713Z /opt/render/project/src/lib/integrations-openai-ai-server/src/image/client.ts:6
+2026-05-26T18:09:50.279148115Z   throw new Error(
+2026-05-26T18:09:50.279152135Z         ^
+2026-05-26T18:09:50.279155305Z 
+2026-05-26T18:09:50.279158135Z Error: AI_INTEGRATIONS_OPENAI_BASE_URL must be set. Did you forget to provision the OpenAI AI integration?
+2026-05-26T18:09:50.279161626Z     at <anonymous> (/opt/render/project/src/lib/integrations-openai-ai-server/src/image/client.ts:6:9)
+2026-05-26T18:09:50.279164406Z     at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+2026-05-26T18:09:50.279167006Z     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+2026-05-26T18:09:50.279168936Z     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+2026-05-26T18:09:50.279171387Z 
+2026-05-26T18:09:50.279174677Z Node.js v24.14.1
+2026-05-26T18:09:50.476690158Z /opt/render/project/src/artifacts/api-server:
+2026-05-26T18:09:50.47671898Z  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/api-server@0.0.0 start: `node --enable-source-maps ./dist/index.mjs`
+2026-05-26T18:09:50.47672354Z Exit status 1
+2026-05-26T18:09:54.491419239Z ==> Exited with status 1
+2026-05-26T18:09:54.495985087Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-05-26T18:10:00.01550839Z ==> Running 'pnpm --filter @workspace/api-server start'
+2026-05-26T18:10:03.724940534Z 
+2026-05-26T18:10:03.724961235Z > @workspace/api-server@0.0.0 start /opt/render/project/src/artifacts/api-server
+2026-05-26T18:10:03.724966346Z > node --enable-source-maps ./dist/index.mjs
+2026-05-26T18:10:03.72502349Z 

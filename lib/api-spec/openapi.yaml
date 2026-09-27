@@ -1,0 +1,1161 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: course
+    description: Course content (weeks, lectures, topics)
+  - name: assignments
+    description: Homeworks, tests, midterm, final
+  - name: practice
+    description: Infinite practice sessions and adaptive problem generation
+  - name: tutor
+    description: AI tutor chat
+  - name: detection
+    description: AI-generation and diachronic detection
+  - name: analytics
+    description: User performance analytics and reports
+  - name: practice-assignments
+    description: Unlimited full practice versions of graded assignments, with rich feedback and dialogue
+  - name: profile
+    description: Evolving per-user mastery profile and assignment-readiness coaching
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /course/overview:
+    get:
+      operationId: getCourseOverview
+      tags: [course]
+      summary: Course-level overview with weeks, assignments, and progress
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseOverview"
+
+  /course/weeks/{weekNumber}:
+    get:
+      operationId: getWeek
+      tags: [course]
+      summary: Get one week's lectures and assignment list
+      parameters:
+        - name: weekNumber
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 4 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Week"
+
+  /course/lectures/{lectureId}:
+    get:
+      operationId: getLecture
+      tags: [course]
+      summary: Get the full lecture text for a topic
+      parameters:
+        - name: lectureId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lecture"
+
+  /course/topics:
+    get:
+      operationId: listTopics
+      tags: [course]
+      summary: List all course topics (used for analytics + tutor scoping)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+  /assignments:
+    get:
+      operationId: listAssignments
+      tags: [assignments]
+      summary: List all assignments (homeworks, tests, midterm, final)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssignmentSummary"
+
+  /assignments/{assignmentId}:
+    get:
+      operationId: getAssignment
+      tags: [assignments]
+      summary: Get an assignment with its problems
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+
+  /assignments/{assignmentId}/start:
+    post:
+      operationId: startAssignmentAttempt
+      tags: [assignments]
+      summary: Start (or resume) an attempt on an assignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptState"
+
+  /assignments/attempts/{attemptId}:
+    get:
+      operationId: getAttempt
+      tags: [assignments]
+      summary: Get current attempt state (answers, time remaining)
+      parameters:
+        - name: attemptId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptState"
+
+  /assignments/attempts/{attemptId}/answer:
+    put:
+      operationId: saveAnswer
+      tags: [assignments]
+      summary: Save (or update) a single answer with keystroke trace
+      parameters:
+        - name: attemptId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerSaved"
+
+  /assignments/attempts/{attemptId}/submit:
+    post:
+      operationId: submitAttempt
+      tags: [assignments]
+      summary: Submit the attempt for grading (also runs AI + diachronic detection)
+      parameters:
+        - name: attemptId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptResult"
+
+  /practice/sessions:
+    post:
+      operationId: startPracticeSession
+      tags: [practice]
+      summary: Start a new practice session (infinite, adaptive)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeSessionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeSession"
+
+  /practice/sessions/{sessionId}/next:
+    post:
+      operationId: nextPracticeProblem
+      tags: [practice]
+      summary: Generate the next problem (adaptive difficulty, de-novo)
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NextProblemInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeProblem"
+
+  /practice/sessions/{sessionId}/grade:
+    post:
+      operationId: gradePracticeAnswer
+      tags: [practice]
+      summary: Grade a practice answer; returns correct/incorrect and explanation
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAnswerInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeGrade"
+
+  /tutor/ask:
+    post:
+      operationId: askTutor
+      tags: [tutor]
+      summary: Ask the AI tutor a question (text reply with optional spoken audio URL)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TutorAskInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TutorReply"
+
+  /detection/scan:
+    post:
+      operationId: scanText
+      tags: [detection]
+      summary: Run AI-generation + diachronic detection on a candidate answer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DetectionScanInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectionResult"
+
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Overall performance summary (averages, attempts, streaks)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+
+  /analytics/topics:
+    get:
+      operationId: getTopicAnalytics
+      tags: [analytics]
+      summary: Per-topic accuracy and strength/weakness ranking
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopicAnalytics"
+
+  /analytics/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [analytics]
+      summary: Recent practice + assignment activity timeline
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /analytics/visit:
+    post:
+      operationId: recordVisit
+      tags: [analytics]
+      summary: Record a unique-visitor beacon (public)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitAck"
+
+  /analytics/visitors:
+    get:
+      operationId: getVisitorStats
+      tags: [analytics]
+      summary: Unique visitor counts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorStats"
+
+  /course/download:
+    get:
+      operationId: downloadCourse
+      tags: [course]
+      summary: Download the course (short lectures + sample homework and exam problems) as PDF or TXT
+      parameters:
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pdf, txt]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/plain:
+              schema:
+                type: string
+
+  /analytics/report:
+    post:
+      operationId: generateReport
+      tags: [analytics]
+      summary: Generate a narrative strengths/weaknesses report
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsReport"
+
+  /practice-assignments:
+    get:
+      operationId: listPracticeAssignments
+      tags: [practice-assignments]
+      summary: List the signed-in user's practice assignments (optionally for one source assignment)
+      parameters:
+        - name: sourceAssignmentId
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PracticeAssignmentSummary"
+    post:
+      operationId: generatePracticeAssignment
+      tags: [practice-assignments]
+      summary: Generate a fresh practice version of a graded assignment (no repeats, no overlap with the real problems)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAssignmentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAssignmentDetail"
+
+  /practice-assignments/{id}:
+    get:
+      operationId: getPracticeAssignment
+      tags: [practice-assignments]
+      summary: Get a practice assignment with its problems, saved answers, and feedback
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAssignmentDetail"
+
+  /practice-assignments/{id}/answer:
+    put:
+      operationId: savePracticeAssignmentAnswer
+      tags: [practice-assignments]
+      summary: Save (or update) a single answer on a practice assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAnswerSaveInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerSaved"
+
+  /practice-assignments/{id}/submit:
+    post:
+      operationId: submitPracticeAssignment
+      tags: [practice-assignments]
+      summary: Grade a practice assignment with detailed feedback and update the user's profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAssignmentResult"
+
+  /practice-assignments/{id}/dialogue:
+    get:
+      operationId: getFeedbackMessages
+      tags: [practice-assignments]
+      summary: Get the full feedback dialogue thread for a practice assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedbackMessage"
+    post:
+      operationId: postFeedbackMessage
+      tags: [practice-assignments]
+      summary: Ask the app a follow-up question about the feedback on a practice problem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackDialogueInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackMessage"
+
+  /profile/topics:
+    get:
+      operationId: getProfileTopics
+      tags: [profile]
+      summary: The signed-in user's evolving per-topic mastery profile
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfileTopicStat"
+
+  /profile/assignment-readiness:
+    post:
+      operationId: generateAssignmentReadiness
+      tags: [profile]
+      summary: Surgically precise, analytics-based pointers on what to focus on before a graded assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentReadinessInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentReadiness"
+
+components:
+  schemas:
+    VisitAck:
+      type: object
+      properties:
+        ok: { type: boolean }
+      required: [ok]
+
+    VisitorStats:
+      type: object
+      properties:
+        uniqueVisitors: { type: integer }
+        guests: { type: integer }
+        signedIn: { type: integer }
+      required: [uniqueVisitors, guests, signedIn]
+
+    HealthStatus:
+      type: object
+      properties:
+        status: { type: string }
+      required: [status]
+
+    Topic:
+      type: object
+      required: [id, slug, title, weekNumber]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        title: { type: string }
+        weekNumber: { type: integer }
+        blurb: { type: ["string", "null"] }
+
+    Lecture:
+      type: object
+      required: [id, topicId, title, weekNumber, body]
+      properties:
+        id: { type: integer }
+        topicId: { type: integer }
+        title: { type: string }
+        weekNumber: { type: integer }
+        body:
+          type: string
+          description: Short Markdown lecture text (the baseline / minimum-detail version). The frontend lets users select passages and send them to the tutor.
+        bodyMedium:
+          type: ["string", "null"]
+          description: Medium-length version with more explanation and more examples. Null if not yet generated.
+        bodyLong:
+          type: ["string", "null"]
+          description: Long version with the most explanation and the most examples. Null if not yet generated.
+
+    Week:
+      type: object
+      required: [weekNumber, title, lectures, assignments]
+      properties:
+        weekNumber: { type: integer }
+        title: { type: string }
+        summary: { type: ["string", "null"] }
+        lectures:
+          type: array
+          items:
+            $ref: "#/components/schemas/LectureRef"
+        assignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentSummary"
+
+    LectureRef:
+      type: object
+      required: [id, title, topicId]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        topicId: { type: integer }
+
+    AssignmentSummary:
+      type: object
+      required: [id, kind, title, weekNumber, problemCount, isTimed, status]
+      properties:
+        id: { type: integer }
+        kind:
+          type: string
+          enum: [homework, test, midterm, final]
+        title: { type: string }
+        weekNumber: { type: integer }
+        problemCount: { type: integer }
+        isTimed: { type: boolean }
+        timeLimitMinutes: { type: ["integer", "null"] }
+        status:
+          type: string
+          enum: [not_started, in_progress, submitted]
+        bestScore: { type: ["number", "null"] }
+        lastAttemptId: { type: ["integer", "null"] }
+
+    Assignment:
+      type: object
+      required: [id, kind, title, weekNumber, isTimed, problems]
+      properties:
+        id: { type: integer }
+        kind:
+          type: string
+          enum: [homework, test, midterm, final]
+        title: { type: string }
+        weekNumber: { type: integer }
+        isTimed: { type: boolean }
+        timeLimitMinutes: { type: ["integer", "null"] }
+        instructions: { type: ["string", "null"] }
+        problems:
+          type: array
+          items:
+            $ref: "#/components/schemas/Problem"
+
+    Problem:
+      type: object
+      required: [id, position, prompt, topicId]
+      properties:
+        id: { type: integer }
+        position: { type: integer }
+        prompt: { type: string }
+        topicId: { type: integer }
+        topicTitle: { type: ["string", "null"] }
+        hint: { type: ["string", "null"] }
+
+    AttemptState:
+      type: object
+      required: [id, assignmentId, status, startedAt, answers]
+      properties:
+        id: { type: integer }
+        assignmentId: { type: integer }
+        status:
+          type: string
+          enum: [in_progress, submitted]
+        startedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }
+        deadlineAt: { type: ["string", "null"], format: date-time }
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SavedAnswer"
+
+    SavedAnswer:
+      type: object
+      required: [problemId, answer]
+      properties:
+        problemId: { type: integer }
+        answer: { type: string }
+        keystrokeCount: { type: ["integer", "null"] }
+        eraseCount: { type: ["integer", "null"] }
+
+    AnswerInput:
+      type: object
+      required: [problemId, answer, trace]
+      properties:
+        problemId: { type: integer }
+        answer: { type: string }
+        trace:
+          $ref: "#/components/schemas/KeystrokeTrace"
+
+    KeystrokeTrace:
+      type: object
+      required: [keystrokeCount, eraseCount, durationMs]
+      properties:
+        keystrokeCount: { type: integer }
+        eraseCount: { type: integer }
+        bulkInsertCount: { type: integer, default: 0 }
+        longestBulkInsertChars: { type: integer, default: 0 }
+        rewriteSegments: { type: integer, default: 0 }
+        durationMs: { type: integer }
+
+    AnswerSaved:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+
+    AttemptResult:
+      type: object
+      required: [attemptId, score, total, percent, perProblem, detection]
+      properties:
+        attemptId: { type: integer }
+        score: { type: number }
+        total: { type: number }
+        percent: { type: number }
+        perProblem:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemResult"
+        detection:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetectionResult"
+
+    ProblemResult:
+      type: object
+      required: [problemId, correct, explanation]
+      properties:
+        problemId: { type: integer }
+        correct: { type: boolean }
+        userAnswer: { type: string }
+        correctAnswer: { type: string }
+        explanation: { type: string }
+
+    PracticeSessionInput:
+      type: object
+      required: [tutorEnabled]
+      properties:
+        weekNumber: { type: ["integer", "null"] }
+        topicId: { type: ["integer", "null"] }
+        tutorEnabled: { type: boolean }
+        focusOnWeaknesses: { type: boolean, default: true }
+        initialDifficulty:
+          type: ["number", "null"]
+          description: Starting difficulty 1-5; if omitted defaults to 2.0
+
+    PracticeSession:
+      type: object
+      required: [id, tutorEnabled, difficulty, weekNumber]
+      properties:
+        id: { type: integer }
+        tutorEnabled: { type: boolean }
+        difficulty: { type: number }
+        weekNumber: { type: ["integer", "null"] }
+        topicId: { type: ["integer", "null"] }
+        focusOnWeaknesses: { type: boolean }
+
+    NextProblemInput:
+      type: object
+      properties:
+        request:
+          type: ["string", "null"]
+          description: Free-form user request, e.g. "give me harder probability problems"
+        topicId: { type: ["integer", "null"] }
+
+    PracticeProblem:
+      type: object
+      required: [id, prompt, topicId, difficulty]
+      properties:
+        id: { type: integer }
+        prompt: { type: string }
+        topicId: { type: integer }
+        topicTitle: { type: string }
+        difficulty: { type: number }
+
+    PracticeAnswerInput:
+      type: object
+      required: [problemId, answer, trace]
+      properties:
+        problemId: { type: integer }
+        answer: { type: string }
+        trace:
+          $ref: "#/components/schemas/KeystrokeTrace"
+
+    PracticeGrade:
+      type: object
+      required: [problemId, correct, explanation, newDifficulty]
+      properties:
+        problemId: { type: integer }
+        correct: { type: boolean }
+        correctAnswer: { type: string }
+        explanation: { type: string }
+        newDifficulty: { type: number }
+        tutorTip: { type: ["string", "null"] }
+
+    TutorAskInput:
+      type: object
+      required: [message]
+      properties:
+        sessionId: { type: ["integer", "null"] }
+        message: { type: string }
+        selectedLectureText: { type: ["string", "null"] }
+        lectureId: { type: ["integer", "null"] }
+        problemId: { type: ["integer", "null"] }
+
+    TutorReply:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        audioUrl: { type: ["string", "null"] }
+
+    DetectionScanInput:
+      type: object
+      required: [text, trace]
+      properties:
+        text: { type: string }
+        trace:
+          $ref: "#/components/schemas/KeystrokeTrace"
+
+    DetectionResult:
+      type: object
+      required: [problemId, aiScore, aiFlagged, diachronicScore, diachronicFlagged, rationale]
+      properties:
+        problemId: { type: ["integer", "null"] }
+        aiScore:
+          type: number
+          description: 0..1 probability the text is AI-generated
+        aiFlagged: { type: boolean }
+        diachronicScore:
+          type: number
+          description: 0..1 probability the user is rewording AI output (based on keystroke pattern)
+        diachronicFlagged: { type: boolean }
+        rationale: { type: string }
+
+    AnalyticsSummary:
+      type: object
+      required: [officialAverage, practiceAccuracy, attemptsCount, practiceCount, streakDays]
+      properties:
+        officialAverage: { type: number }
+        practiceAccuracy: { type: number }
+        attemptsCount: { type: integer }
+        practiceCount: { type: integer }
+        streakDays: { type: integer }
+        strongestTopic: { type: ["string", "null"] }
+        weakestTopic: { type: ["string", "null"] }
+
+    TopicAnalytics:
+      type: object
+      required: [topicId, topicTitle, weekNumber, attempts, accuracy, strengthLabel]
+      properties:
+        topicId: { type: integer }
+        topicTitle: { type: string }
+        weekNumber: { type: integer }
+        attempts: { type: integer }
+        accuracy: { type: number }
+        strengthLabel:
+          type: string
+          enum: [strong, solid, developing, weak, untested]
+
+    ActivityItem:
+      type: object
+      required: [id, kind, title, at]
+      properties:
+        id: { type: integer }
+        kind:
+          type: string
+          enum: [practice, assignment]
+        title: { type: string }
+        at: { type: string, format: date-time }
+        score: { type: ["number", "null"] }
+        topicTitle: { type: ["string", "null"] }
+
+    AnalyticsReport:
+      type: object
+      required: [generatedAt, narrative, strengths, weaknesses, recommendations]
+      properties:
+        generatedAt: { type: string, format: date-time }
+        narrative: { type: string }
+        strengths:
+          type: array
+          items: { type: string }
+        weaknesses:
+          type: array
+          items: { type: string }
+        recommendations:
+          type: array
+          items: { type: string }
+
+    CourseOverview:
+      type: object
+      required: [title, weeks, totals]
+      properties:
+        title: { type: string }
+        weeks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Week"
+        totals:
+          type: object
+          required: [assignmentsCompleted, assignmentsTotal, practiceCount]
+          properties:
+            assignmentsCompleted: { type: integer }
+            assignmentsTotal: { type: integer }
+            practiceCount: { type: integer }
+
+    PracticeAssignmentInput:
+      type: object
+      required: [sourceAssignmentId]
+      properties:
+        sourceAssignmentId:
+          type: integer
+          description: The graded assignment to build a fresh practice version of.
+
+    PracticeAssignmentSummary:
+      type: object
+      required: [id, sourceAssignmentId, kind, title, weekNumber, status, problemCount, createdAt]
+      properties:
+        id: { type: integer }
+        sourceAssignmentId: { type: integer }
+        kind:
+          type: string
+          enum: [homework, test, midterm, final]
+        title: { type: string }
+        weekNumber: { type: integer }
+        status:
+          type: string
+          enum: [in_progress, submitted]
+        scorePercent: { type: ["number", "null"] }
+        problemCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    PracticeAssignmentProblem:
+      type: object
+      required: [id, position, prompt, topicId, difficulty]
+      properties:
+        id: { type: integer }
+        position: { type: integer }
+        prompt: { type: string }
+        topicId: { type: integer }
+        topicTitle: { type: ["string", "null"] }
+        hint: { type: ["string", "null"] }
+        difficulty: { type: number }
+
+    PracticeAssignmentAnswerState:
+      type: object
+      required: [problemId, answer]
+      properties:
+        problemId: { type: integer }
+        answer: { type: string }
+        correct: { type: ["boolean", "null"] }
+        score: { type: ["number", "null"] }
+        feedback: { type: ["string", "null"] }
+        whatWasRight: { type: ["string", "null"] }
+        whatToFix: { type: ["string", "null"] }
+        conceptTip: { type: ["string", "null"] }
+        correctAnswer: { type: ["string", "null"] }
+        explanation: { type: ["string", "null"] }
+
+    PracticeAssignmentDetail:
+      type: object
+      required: [id, sourceAssignmentId, kind, title, weekNumber, status, instructions, problems, answers]
+      properties:
+        id: { type: integer }
+        sourceAssignmentId: { type: integer }
+        kind:
+          type: string
+          enum: [homework, test, midterm, final]
+        title: { type: string }
+        weekNumber: { type: integer }
+        status:
+          type: string
+          enum: [in_progress, submitted]
+        scorePercent: { type: ["number", "null"] }
+        instructions: { type: ["string", "null"] }
+        problems:
+          type: array
+          items:
+            $ref: "#/components/schemas/PracticeAssignmentProblem"
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/PracticeAssignmentAnswerState"
+
+    PracticeAnswerSaveInput:
+      type: object
+      required: [problemId, answer]
+      properties:
+        problemId: { type: integer }
+        answer: { type: string }
+
+    PracticeFeedback:
+      type: object
+      required: [problemId, correct, score, userAnswer, correctAnswer, explanation, feedback]
+      properties:
+        problemId: { type: integer }
+        correct: { type: boolean }
+        score: { type: number }
+        userAnswer: { type: string }
+        correctAnswer: { type: string }
+        explanation: { type: string }
+        feedback: { type: string }
+        whatWasRight: { type: ["string", "null"] }
+        whatToFix: { type: ["string", "null"] }
+        conceptTip: { type: ["string", "null"] }
+        topicId: { type: integer }
+        topicTitle: { type: ["string", "null"] }
+
+    PracticeAssignmentResult:
+      type: object
+      required: [id, score, total, percent, perProblem]
+      properties:
+        id: { type: integer }
+        score: { type: number }
+        total: { type: number }
+        percent: { type: number }
+        overallFeedback: { type: ["string", "null"] }
+        perProblem:
+          type: array
+          items:
+            $ref: "#/components/schemas/PracticeFeedback"
+
+    FeedbackDialogueInput:
+      type: object
+      required: [message]
+      properties:
+        problemId: { type: ["integer", "null"] }
+        message: { type: string }
+
+    FeedbackMessage:
+      type: object
+      required: [id, role, content, createdAt]
+      properties:
+        id: { type: integer }
+        role:
+          type: string
+          enum: [user, tutor]
+        content: { type: string }
+        problemId: { type: ["integer", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    ProfileTopicStat:
+      type: object
+      required: [topicId, topicTitle, weekNumber, attempts, accuracy, avgScore, masteryLabel]
+      properties:
+        topicId: { type: integer }
+        topicTitle: { type: string }
+        weekNumber: { type: integer }
+        attempts: { type: integer }
+        accuracy: { type: number }
+        avgScore: { type: number }
+        masteryLabel:
+          type: string
+          enum: [mastered, strong, developing, shaky, weak, untested]
+        lastPracticedAt: { type: ["string", "null"], format: date-time }
+
+    AssignmentReadinessInput:
+      type: object
+      required: [assignmentId]
+      properties:
+        assignmentId: { type: integer }
+
+    ReadinessPointer:
+      type: object
+      required: [severity, text]
+      properties:
+        topicId: { type: ["integer", "null"] }
+        topicTitle: { type: ["string", "null"] }
+        severity:
+          type: string
+          enum: [focus, review, solid]
+        text: { type: string }
+
+    AssignmentReadiness:
+      type: object
+      required: [assignmentId, assignmentTitle, readinessScore, readinessLabel, headline, practiceCount, pointers, topics]
+      properties:
+        assignmentId: { type: integer }
+        assignmentTitle: { type: string }
+        readinessScore: { type: number }
+        readinessLabel:
+          type: string
+          enum: [ready, almost, keep_practicing, not_ready]
+        headline: { type: string }
+        practiceCount: { type: integer }
+        pointers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReadinessPointer"
+        topics:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProfileTopicStat"

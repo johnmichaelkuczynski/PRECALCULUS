@@ -1,0 +1,11 @@
+{
+  "markers": {
+    "landing": 1.49,
+    "dashboard": 15.88,
+    "week": 27.06,
+    "tutor": 40.09,
+    "homework": 60.84
+  },
+  "question": "For f(x)=√(x+2) what is its domain?",
+  "tutor": "For \\(f(x)=\\sqrt{x+2}\\), the **domain** is all \\(x\\) values that make the expression under the square root nonnegative, so solve \\(x+2 \\ge 0\\).[3][4]\n\nThat gives \\(x \\ge -2\\), so the domain is **\\([-2,\\infty)\\)**.[3][4]"
+}

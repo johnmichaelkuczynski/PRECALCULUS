@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Precalculus Course — Website"
+version = "1.0.0"
+id = "artifacts/qr-course"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21586
+
+[services.development]
+run = "pnpm --filter @workspace/qr-course run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/qr-course", "run", "build" ]
+publicDir = "artifacts/qr-course/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21586"
+BASE_PATH = "/"

@@ -1,0 +1,16 @@
+# Economics 101
+
+> A free, self-paced four-week economics course covering scarcity, opportunity cost, supply and demand, markets, policy, trade, and growth.
+
+Canonical home: https://finance101.xyz/
+
+## Course weeks
+
+- [Week 1 — Foundations of choice and markets](https://finance101.xyz/weeks/1)
+- [Week 2 — Firms, consumers, and market structure](https://finance101.xyz/weeks/2)
+- [Week 3 — Macroeconomics and policy](https://finance101.xyz/weeks/3)
+- [Week 4 — Trade, development, and institutions](https://finance101.xyz/weeks/4)
+
+Individual lectures are available beneath `https://finance101.xyz/lectures/{id}`, where `{id}` is the lecture identifier.
+
+For the complete inventory of course pages, see the [XML sitemap](https://finance101.xyz/sitemap.xml).

@@ -1,0 +1,29 @@
+kind = "video"
+videoAspectRatio = "16:9"
+previewPath = "/economics-tiktok/"
+title = "Economics 101 — TikTok Promo"
+description = "A 40-second vertical, screen-led Economics 101 promotional video with a friendly authoritative male narrator and no music."
+version = "1.0.0"
+id = "artifacts/economics-tiktok"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/economics-tiktok/" ]
+localPort = 25709
+
+[services.development]
+run = "pnpm --filter @workspace/economics-tiktok run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/economics-tiktok", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/economics-tiktok/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25709"
+BASE_PATH = "/economics-tiktok/"
